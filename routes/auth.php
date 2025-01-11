@@ -9,6 +9,13 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -22,30 +29,68 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-        ->name('password.request');
+    Route::get('/forgot-password', function () {
+        return view('auth.forgot-password');
+    })->middleware('guest')->name('password.request');
 
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->name('password.email');
+    Route::post('/forgot-password', function (Request $request) {
+        $request->validate(['email' => 'required|email']);
 
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-        ->name('password.reset');
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
 
-    Route::post('reset-password', [NewPasswordController::class, 'store'])
-        ->name('password.store');
+        return $status === Password::ResetLinkSent
+            ? back()->with(['status' => __($status)])
+            : back()->withErrors(['email' => __($status)]);
+
+    })->middleware('guest')->name('password.email');
+
+    Route::get('/reset-password/{token}', function (string $token) {
+        return view('auth.reset-password', ['token' => $token]);
+    })->middleware('guest')->name('password.reset');
+
+    Route::post('/reset-password', function (Request $request) {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->setRememberToken(Str::random(60));
+
+                $user->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        return $status === Password::PasswordReset
+            ? redirect()->route('login')->with('status', __($status))
+            : back()->withErrors(['email' => [__($status)]]);
+
+    })->middleware('guest')->name('password.store');
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('verify-email', EmailVerificationPromptController::class)
-        ->name('verification.notice');
+    Route::get('/email/verify', function() {
+        return view('auth.verify-email');
+    })->middleware('auth')->name('verification.notice');
 
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect('/dashboard');
+    })->middleware(['auth', 'signed'])->name('verification.verify');
 
-    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-        ->middleware('throttle:6,1')
-        ->name('verification.send');
+    Route::post('/email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('message', 'Verification link sent!');
+    })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
         ->name('password.confirm');
