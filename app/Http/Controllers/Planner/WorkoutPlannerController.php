@@ -16,12 +16,15 @@ class WorkoutPlannerController extends Controller
         $daysOfWeek = collect(range(0, 6))->map(function($day) use ($weekStart) {
             $date = $weekStart->copy()->addDays($day);
             return [
-                'date'          => $date,
-                'dayShortName'  => $date->format('D'),
-                'dayFullName'   => $date->format('l'),
-                'dayNumber'     => $date->format('d'),
-                'isToday'       => $date->isToday(),
-                'workouts'      => [] 
+                'date'              => $date,
+                'dayShortName'      => $date->format('D'),
+                'dayFullName'       => $date->format('l'),
+                'currentMonth'      => $date->format('F'),
+                'currentShortMonth' => $date->format('M'),
+                'dayNumber'         => $date->format('d'),
+                'currentYear'       => $date->format('Y'),
+                'isToday'           => $date->isToday(),
+                'workouts'          => [] 
             ];
         });
 
