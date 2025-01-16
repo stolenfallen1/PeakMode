@@ -12,10 +12,9 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/workout_planner', function () {
-    $controller = new WorkoutPlannerController();
-    return $controller->weeklySchedule();
-})->middleware(['auth', 'verified'])->name('workout_planner');
+Route::get('/workout_planner', [WorkoutPlannerController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('workout_planner');
 
 Route::get('/workout_exercises', function () {
     return view('workout_exercises');
