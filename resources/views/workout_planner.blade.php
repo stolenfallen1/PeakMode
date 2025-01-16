@@ -58,34 +58,64 @@
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-4 pb-3 border-b">
                     <h2 class="text-xl font-bold" x-text="selectedDay ? selectedDay.dayFullName : 'Selected Day'"></h2>
-                    <button
-                        class="p-2 hover:bg-gray-100 rounded-full"
-                        x-on:click="showModal = false"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                    <div class="flex items-center space-x-2">
+                        <span>Time: </span>
+                        <input type="time" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <button
+                            class="p-2 hover:bg-gray-100 rounded-full"
+                            x-on:click="showModal = false"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Form Content -->
                 <div>
-                    <!-- Workout Type & Time -->
+                    <!-- Muscle Group, Workout Type & Time -->
                     <div>
                         <div class="mb-2">
-                            <label class="block text-sm font-medium text-gray-700">Workout Type</label>
-                            <select class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option>Strength Training</option>
-                                <option>Cardio</option>
-                                <option>HIIT (High Intensity Interval Training)</option>
-                                <option>Circuit Training</option>
-                                <option>Yoga</option>
-                            </select>
+                            <label class="block text-sm font-medium text-gray-700">Muscle Group</label>
+                            <form method="GET" action="{{ route('workout_planner') }}">
+                                <select 
+                                    name="muscle"
+                                    onchange="this.form.submit()"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="">Select a muscle group</option>
+                                    @if (!empty($muscleGroups))                                        
+                                        @foreach ($muscleGroups as $muscleGroup)
+                                            <option value="{{ $muscleGroup }}" {{ request('muscle') == $muscleGroup ? 'selected' : '' }}>
+                                                {{ ucfirst(str_replace('_', ' ', $muscleGroup)) }}
+                                            </option>
+                                        @endforeach
+                                    @else
+                                        <option disabled>No muscle groups available</option>
+                                    @endif
+                                </select>
+                            </form>                        
                         </div>
 
                         <div class="mb-2">
-                            <label class="block text-sm font-medium text-gray-700">Time</label>
-                            <input type="time" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <label class="block text-sm font-medium text-gray-700">Workout Type</label>
+                            <form method="GET" action="{{ route('workout_planner') }}">
+                                <select 
+                                    name="exercise_type"
+                                    onchange="this.form.submit()"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="">Select a muscle group</option>
+                                    @if (!empty($exerciseTypes))                                        
+                                        @foreach ($exerciseTypes as $exerciseType)
+                                            <option value="{{ $exerciseType }}" {{ request('type') == $exerciseType ? 'selected' : '' }}>
+                                                {{ ucfirst(str_replace('_', ' ', $exerciseType)) }}
+                                            </option>
+                                        @endforeach
+                                    @else
+                                        <option disabled>No workout types available</option>
+                                    @endif
+                                </select>
+                            </form>                          
                         </div>
 
                         <div class="mb-2">
@@ -158,25 +188,15 @@
                 <!-- Left Side: Schedule and Workout Section -->
                 <!-- Schedule Section -->
                 <section class="bg-white p-6 rounded shadow-lg">
-                    <h2 class="text-xl font-bold mb-2">Schedule for 
-                        <span x-text="selectedDay ? selectedDay.dayFullName : 'Selected Day'"></span>
-                    </h2>
-                    <div x-show="selectedDay" class="mt-3">
-                        <div class="mb-2">
-                            <label class="block text-sm font-medium text-gray-700">Workout Type</label>
-                            <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option>Strength Training</option>
-                                <option>Cardio</option>
-                                <option>HIIT ( High Intensity Internval Training )</option>
-                                <option>Circuit Training</option>
-                                <option>Yoga</option>
-                            </select>
+                    <aside class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold mb-2">Schedule for 
+                            <span x-text="selectedDay ? selectedDay.dayFullName : 'Selected Day'"></span>
+                        </h2>
+                        <div class="flex items-center space-x-2">
+                            <span>Time: </span>
+                            <input type="time" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         </div>
-                        <div class="mb-2">
-                            <label class="block text-sm font-medium text-gray-700">Time</label>
-                            <input type="time" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        </div>
-                    </div>
+                    </aside>
                 </section>
 
                 <!-- Workout Section -->
@@ -184,24 +204,68 @@
                     <h2 class="text-xl font-bold mb-2">Workout Details</h2>
                     <div x-show="selectedDay" class="mt-3">
                         <div class="mb-2">
+                            <label class="block text-sm font-medium text-gray-700">Muscle Group</label>
+                            <form method="GET" action="{{ route('workout_planner') }}">
+                                <select 
+                                    name="muscle"
+                                    onchange="this.form.submit()"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="">Select a muscle group</option>
+                                    @if (!empty($muscleGroups))                                        
+                                        @foreach ($muscleGroups as $muscleGroup)
+                                            <option value="{{ $muscleGroup }}" {{ request('muscle') == $muscleGroup ? 'selected' : '' }}>
+                                                {{ ucfirst(str_replace('_', ' ', $muscleGroup)) }}
+                                            </option>
+                                        @endforeach
+                                    @else
+                                        <option disabled>No muscle groups available</option>
+                                    @endif
+                                </select>
+                            </form>    
+                        </div>
+                        
+                        <div class="mb-2">
+                            <label class="block text-sm font-medium text-gray-700">Workout Type</label>
+                            <form method="GET" action="{{ route('workout_planner') }}">
+                                <select 
+                                    name="exercise_type"
+                                    onchange="this.form.submit()"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="">Select a muscle group</option>
+                                    @if (!empty($exerciseTypes))                                        
+                                        @foreach ($exerciseTypes as $exerciseType)
+                                            <option value="{{ $exerciseType }}" {{ request('type') == $exerciseType ? 'selected' : '' }}>
+                                                {{ ucfirst(str_replace('_', ' ', $exerciseType)) }}
+                                            </option>
+                                        @endforeach
+                                    @else
+                                        <option disabled>No workout types available</option>
+                                    @endif
+                                </select>
+                            </form>    
+                        </div>     
+
+                        <div class="mb-2">
                             <label class="block text-sm font-medium text-gray-700">Exercise</label>
-                            <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <select class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                 <option>Test Exercise 1</option>
                                 <option>Test Exercise 2</option>
                                 <option>Test Exercise 3</option>
                                 <option>Test Exercise 4</option>
                             </select>
                         </div>
+
                         <div class="mb-2 flex items-center space-x-4">
                             <div class="w-1/2">
                                 <label class="block text-sm font-medium text-gray-700">Sets</label>
-                                <input type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <input type="number" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             </div>
                             <div class="w-1/2">
                                 <label class="block text-sm font-medium text-gray-700">Repitition</label>
-                                <input type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <input type="number" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             </div>
                         </div>
+
                         <button class="mt-3 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                             Save Workout
                         </button>
