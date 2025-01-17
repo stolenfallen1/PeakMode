@@ -12,7 +12,7 @@ class ExerciseApiService
     public function __construct() 
     {
         $this->headers = [
-            // 'X-Api-Key' => '2/yj9SckomVhDhddK92dpQ==u9TwhMj0yDk5aOIW'
+            'X-Api-Key' => '2/yj9SckomVhDhddK92dpQ==u9TwhMj0yDk5aOIW'
         ];
         $this->client = new Client(['base_uri' => $this->baseUrl]);
     }
@@ -20,8 +20,6 @@ class ExerciseApiService
     public function getExercises($filters = []) 
     {
         try {
-            \Log::debug('Fetching exercises with filters: ', $filters);
-
             $response = $this->client->request('GET', '', [
                 'query' => $filters,
                 'headers' => $this->headers,
