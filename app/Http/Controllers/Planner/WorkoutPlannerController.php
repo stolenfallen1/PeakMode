@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Planner;
 
 use App\Http\Controllers\Controller;
 use App\Services\ExerciseApiService;
+use Cache;
 use Illuminate\Http\Request;
 
 class WorkoutPlannerController extends Controller
 {
     //
     protected $exerciseApiService;
+    protected const CACHE_TTL = 86400; // 24 hours
     public function __construct(ExerciseApiService $exerciseApiService) 
     {
         $this->exerciseApiService = $exerciseApiService;
@@ -38,20 +40,28 @@ class WorkoutPlannerController extends Controller
 
     private function getMuscleGroup($muscle = null) 
     {
-        $filters = $muscle ? ['muscle' => $muscle] : [];
-        $response = $this->exerciseApiService->getExercises($filters);
-        $muscleGroups = collect($response)->pluck('muscle')->unique()->values()->toArray();
-        \Log::debug('API Response:', $muscleGroups);
-        return $muscleGroups;
+        $cacheKey = 'muscle_groups';
+
+        return Cache::remember($cacheKey, self::CACHE_TTL, function() use ($muscle) {
+            $filters = $muscle ? ['muscle' => $muscle] : [];
+            $response = $this->exerciseApiService->getExercises($filters);
+            $muscleGroups = collect($response)->pluck('muscle')->unique()->values()->toArray();
+            \Log::debug('API Response:', $muscleGroups);
+            return $muscleGroups;
+        });
     }
     
     private function getWorkoutType($type = null) 
     {  
-        $filters = $type ? ['type' => $type] : [];
-        $response = $this->exerciseApiService->getExercises($filters);
-        $exerciseTypes = collect($response)->pluck('type')->unique()->values()->toArray();
-        \Log::debug('API Response:', $exerciseTypes);
-        return $exerciseTypes;
+        $cacheKey = 'workout_types';
+
+        return Cache::remember($cacheKey, self::CACHE_TTL, function() use ($type) {
+            $filters = $type ? ['type' => $type] : [];
+            $response = $this->exerciseApiService->getExercises($filters);
+            $workoutTypes = collect($response)->pluck('type')->unique()->values()->toArray();
+            \Log::debug('API Response:', $workoutTypes);
+            return $workoutTypes;
+        });
     }
 
     public function index(Request $request) 
