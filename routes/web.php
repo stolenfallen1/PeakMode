@@ -16,6 +16,11 @@ Route::get('/workout_planner', [WorkoutPlannerController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('workout_planner');
 
+Route::get('/api/fetch_exercises', [WorkoutPlannerController::class, 'fetchExercises'])
+    ->middleware(['auth', 'verified'])
+    ->name('api.fetch_exercises');
+
+
 Route::get('/workout_exercises', function () {
     return view('workout_exercises');
 })->middleware(['auth', 'verified'])->name('workout_exercises');

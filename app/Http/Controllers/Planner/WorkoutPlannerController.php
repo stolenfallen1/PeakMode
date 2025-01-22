@@ -44,7 +44,7 @@ class WorkoutPlannerController extends Controller
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function() use ($muscle) {
             $filters = $muscle ? ['muscle' => $muscle] : [];
-            $response = $this->exerciseApiService->getExercises($filters);
+            $response = $this->exerciseApiService->getDataFromExercisesAPI($filters);
             $muscleGroups = collect($response)->pluck('muscle')->unique()->values()->toArray();
             \Log::debug('API Response:', $muscleGroups);
             return $muscleGroups;
@@ -57,11 +57,25 @@ class WorkoutPlannerController extends Controller
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function() use ($type) {
             $filters = $type ? ['type' => $type] : [];
-            $response = $this->exerciseApiService->getExercises($filters);
+            $response = $this->exerciseApiService->getDataFromExercisesAPI($filters);
             $workoutTypes = collect($response)->pluck('type')->unique()->values()->toArray();
             \Log::debug('API Response:', $workoutTypes);
             return $workoutTypes;
         });
+    }
+
+    public function fetchExercises(Request $request) 
+    {
+        $muscle = $request->get('muscle');
+        $type = $request->get('type');
+
+        if (empty($muscle) && empty($type)) {
+            return response()->json(['error' => 'Please select a muscle group or workout type'], 400);
+        }
+
+        $exercises = $this->exerciseApiService->getExercisesByMuscleAndType($muscle, $type);
+
+        return response()->json($exercises);
     }
 
     public function index(Request $request) 
