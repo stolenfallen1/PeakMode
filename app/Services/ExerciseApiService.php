@@ -17,7 +17,7 @@ class ExerciseApiService
         $this->client = new Client(['base_uri' => $this->baseUrl]);
     }
 
-    public function getExercises($filters = []) 
+    public function getDataFromExercisesAPI($filters = []) 
     {
         try {
             $response = $this->client->request('GET', '', [
@@ -32,6 +32,19 @@ class ExerciseApiService
             \Log::error('Error fetching exercises: ' . $e->getMessage());
             return [];
         }
+    }
+
+    public function getExercisesByMuscleAndType($muscle, $type) 
+    {
+        $filters = [];
+        if ($muscle) {
+            $filters['muscle'] = $muscle;
+        }
+        if ($type) {
+            $filters['type'] = $type;
+        }
+
+        return $this->getDataFromExercisesAPI($filters);
     }
 
 }

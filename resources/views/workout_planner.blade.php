@@ -198,81 +198,72 @@
                         </div>
                     </aside>
                 </section>
-
+        
                 <!-- Workout Section -->
                 <section class="bg-white p-6 rounded shadow-lg">
                     <h2 class="text-xl font-bold mb-2">Workout Details</h2>
                     <div x-show="selectedDay" class="mt-3">
                         <div class="mb-2">
                             <label class="block text-sm font-medium text-gray-700">Muscle Group</label>
-                            <form method="GET" action="{{ route('workout_planner') }}">
-                                <select 
-                                    name="muscle"
-                                    onchange="this.form.submit()"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                    <option value="">Select a muscle group</option>
-                                    @if (!empty($muscleGroups))                                        
-                                        @foreach ($muscleGroups as $muscleGroup)
-                                            <option value="{{ $muscleGroup }}" {{ request('muscle') == $muscleGroup ? 'selected' : '' }}>
-                                                {{ ucfirst(str_replace('_', ' ', $muscleGroup)) }}
-                                            </option>
-                                        @endforeach
-                                    @else
-                                        <option disabled>No muscle groups available</option>
-                                    @endif
-                                </select>
-                            </form>    
+                            <select 
+                                id="muscle"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="">Select a muscle group</option>
+                                @if (!empty($muscleGroups))                                        
+                                    @foreach ($muscleGroups as $muscleGroup)
+                                        <option value="{{ $muscleGroup }}" {{ request('muscle') == $muscleGroup ? 'selected' : '' }}>
+                                            {{ ucfirst(str_replace('_', ' ', $muscleGroup)) }}
+                                        </option>
+                                    @endforeach
+                                @else
+                                    <option disabled>No muscle groups available</option>
+                                @endif
+                            </select>
                         </div>
                         
                         <div class="mb-2">
                             <label class="block text-sm font-medium text-gray-700">Workout Type</label>
-                            <form method="GET" action="{{ route('workout_planner') }}">
-                                <select 
-                                    name="exercise_type"
-                                    onchange="this.form.submit()"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                    <option value="">Select a muscle group</option>
-                                    @if (!empty($exerciseTypes))                                        
-                                        @foreach ($exerciseTypes as $exerciseType)
-                                            <option value="{{ $exerciseType }}" {{ request('type') == $exerciseType ? 'selected' : '' }}>
-                                                {{ ucfirst(str_replace('_', ' ', $exerciseType)) }}
-                                            </option>
-                                        @endforeach
-                                    @else
-                                        <option disabled>No workout types available</option>
-                                    @endif
-                                </select>
-                            </form>    
+                            <select 
+                                id="type"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="">Select a workout type</option>
+                                @if (!empty($exerciseTypes))                                        
+                                    @foreach ($exerciseTypes as $exerciseType)
+                                        <option value="{{ $exerciseType }}" {{ request('type') == $exerciseType ? 'selected' : '' }}>
+                                            {{ ucfirst(str_replace('_', ' ', $exerciseType)) }}
+                                        </option>
+                                    @endforeach
+                                @else
+                                    <option disabled>No workout types available</option>
+                                @endif
+                            </select>
                         </div>     
-
+        
                         <div class="mb-2">
                             <label class="block text-sm font-medium text-gray-700">Exercise</label>
-                            <select class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option>Test Exercise 1</option>
-                                <option>Test Exercise 2</option>
-                                <option>Test Exercise 3</option>
-                                <option>Test Exercise 4</option>
+                            <select id="exercises" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" disabled>
+                                <option value="">Select Exercise</option>
                             </select>
                         </div>
-
+        
                         <div class="mb-2 flex items-center space-x-4">
                             <div class="w-1/2">
                                 <label class="block text-sm font-medium text-gray-700">Sets</label>
                                 <input type="number" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             </div>
                             <div class="w-1/2">
-                                <label class="block text-sm font-medium text-gray-700">Repitition</label>
+                                <label class="block text-sm font-medium text-gray-700">Repetition</label>
                                 <input type="number" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             </div>
                         </div>
-
+        
                         <button class="mt-3 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                             Save Workout
                         </button>
                     </div>
                 </section>
             </div>
-
+        
             <!-- Right Side: Workouts Summary Section -->
             <section class="bg-white p-6 rounded shadow-lg">
                 <h2 class="text-xl font-bold mb-4">Workouts Summary</h2>
@@ -297,5 +288,7 @@
             </section>
         </div>
     </div>
+
+    <script src="{{ asset('js/functions/workout_planner.js') }}"></script>
 
 </x-app-layout>
