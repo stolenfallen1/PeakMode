@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Exercises\WorkoutExercisesController;
 use App\Http\Controllers\Planner\WorkoutPlannerController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +33,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Workout planner
+    // Save workout
+    Route::post('/workout/save', [WorkoutPlannerController::class, 'saveWorkout'])->name('workout.save');
+    // Get user workouts for the current day
+    Route::get('/workout/user-workouts', [WorkoutPlannerController::class, 'getUserWorkouts'])->name('workout.user-workouts');
+    // Delete specific workout
+    Route::delete('/workout/delete/{id}', [WorkoutPlannerController::class, 'deleteWorkout'])->name('workout.delete');
+    // Delete all workouts for the current day
+    Route::delete('/workout/delete-all', [WorkoutPlannerController::class,'deleteAllWorkouts'])->name('workout.delete.all');
 });
 
 require __DIR__.'/auth.php';

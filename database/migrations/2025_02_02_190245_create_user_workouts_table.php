@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('reps');
             // $table->decimal('weight', 8, 2)->nullable(); Let's add this later
             $table->date('date');
+            $table->time('time');
             // $table->text('notes')->nullable(); Let's add this later
             $table->timestamps();
         });

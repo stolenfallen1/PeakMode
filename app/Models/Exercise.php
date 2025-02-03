@@ -9,7 +9,6 @@ class Exercise extends Model
 {
     protected $fillable = [
         'name',
-        'description',
         'muscle_group',
         'exercise_type',
         'equipment',
@@ -18,7 +17,7 @@ class Exercise extends Model
     ];
 
     protected $casts = [
-        'instructions' => 'array'  
+        'instructions' => 'string'  
     ];
 
     public function userWorkouts(): HasMany

@@ -12,11 +12,13 @@ class UserWorkout extends Model
         'exercise_id',
         'sets',
         'reps',
-        'date'
+        'date',
+        'time'
     ];
 
     protected $casts = [
-        'date' => 'date'
+        'date' => 'date',
+        'time' => 'datetime:H:i:'
     ];
 
     public function user(): BelongsTo
