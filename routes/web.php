@@ -26,6 +26,10 @@ Route::get('/workout_exercises', function () {
     return view('workout_exercises');
 })->middleware(['auth', 'verified'])->name('workout_exercises');
 
+Route::get('/find_gyms', function () {
+    return view('find_gym');
+})->middleware(['auth', 'verified'])->name('find_gyms');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

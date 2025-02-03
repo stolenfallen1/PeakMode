@@ -21,6 +21,9 @@
                     <x-nav-link :href="route('workout_exercises')" :active="request()->routeIs('workout_exercises')">
                         {{ __('Exercises') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('find_gyms')" :active="request()->routeIs('find_gyms')">
+                        {{ __('Find Gyms') }}
+                    </x-nav-link>
                 </div>
             </div>
 
