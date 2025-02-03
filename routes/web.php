@@ -25,10 +25,24 @@ Route::get('/workout_exercises', function () {
     return view('workout_exercises');
 })->middleware(['auth', 'verified'])->name('workout_exercises');
 
+Route::get('/find_gyms', function () {
+    return view('find_gym');
+})->middleware(['auth', 'verified'])->name('find_gyms');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Workout planner
+    // Save workout
+    Route::post('/workout/save', [WorkoutPlannerController::class, 'saveWorkout'])->name('workout.save');
+    // Get user workouts for the current day
+    Route::get('/workout/user-workouts', [WorkoutPlannerController::class, 'getUserWorkouts'])->name('workout.user-workouts');
+    // Delete specific workout
+    Route::delete('/workout/delete/{id}', [WorkoutPlannerController::class, 'deleteWorkout'])->name('workout.delete');
+    // Delete all workouts for the current day
+    Route::delete('/workout/delete-all', [WorkoutPlannerController::class,'deleteAllWorkouts'])->name('workout.delete.all');
 });
 
 require __DIR__.'/auth.php';
