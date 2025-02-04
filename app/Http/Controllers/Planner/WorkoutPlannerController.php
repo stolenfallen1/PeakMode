@@ -163,12 +163,30 @@ class WorkoutPlannerController extends Controller
 
     public function deleteWorkout($id) 
     {
-        $workout = UserWorkout::where('id', $id)
-            ->where('user_id', auth()->id())
-            ->firstOrFail();
+        DB::beginTransaction();
 
-        $workout->delete();
-        return response()->json(['message' => 'Workout deleted successfully']) ;
+        try {
+            $workout = UserWorkout::with('workout_schedule')
+                ->where('id', $id)
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+
+            $scheduleId = $workout->schedule_id;
+            $workout->delete();
+
+            $remainingWorkouts = UserWorkout::where('schedule_id', $scheduleId)->count();
+            if ($remainingWorkouts === 0) {
+                WorkoutSchedule::where('id', $scheduleId)->delete();
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Workout deleted successfully'], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()],500);
+        }
+
     }
 
     public function deleteAllWorkouts(Request $request) 
