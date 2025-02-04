@@ -10,10 +10,9 @@ class UserWorkout extends Model
     protected $fillable = [
         'user_id',
         'exercise_id',
+        'schedule_id',
         'sets',
         'reps',
-        'date',
-        'time'
     ];
 
     protected $casts = [
@@ -29,5 +28,10 @@ class UserWorkout extends Model
     public function exercise(): BelongsTo
     {
         return $this->belongsTo(Exercise::class);
+    }
+
+    public function workout_schedule(): BelongsTo 
+    {
+        return $this->belongsTo(WorkoutSchedule::class, 'schedule_id');
     }
 }

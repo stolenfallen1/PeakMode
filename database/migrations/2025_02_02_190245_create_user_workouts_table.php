@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('user_workouts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('exercise_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('exercise_id')->constrained('exercises')->onDelete('cascade');
+            $table->foreignId('schedule_id')->constrained('workout_schedules')->onDelete('cascade');
             $table->integer('sets');
             $table->integer('reps');
             // $table->decimal('weight', 8, 2)->nullable(); Let's add this later
-            $table->date('date');
-            $table->time('time');
             // $table->text('notes')->nullable(); Let's add this later
             $table->timestamps();
         });

@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Planner;
 use App\Http\Controllers\Controller;
 use App\Models\Exercise;
 use App\Models\UserWorkout;
+use App\Models\WorkoutSchedule;
 use App\Services\ExerciseApiService;
+use Illuminate\Support\Facades\DB;
 use Cache;
 use Illuminate\Http\Request;
 
@@ -96,69 +98,102 @@ class WorkoutPlannerController extends Controller
 
     public function saveWorkout(Request $request)
     {
-        $validated = $request->validate([
-            'date' => 'required|date',
-            'time' => 'required|date_format:H:i',
-            'exercise' => 'required|string',
-            'muscle' => 'required|string',
-            'type' => 'required|string',
-            'sets' => 'required|integer|min:1',
-            'reps' => 'required|integer|min:1'
-        ]);
+        DB::beginTransaction();
 
-        $cacheKey = "exercises_{$validated['muscle']}_{$validated['type']}";
-        $moreInfoOnExercise = collect(Cache::get($cacheKey))
-            ->where('name', $validated['exercise'])
-            ->first();
-    
-        $exercise = Exercise::firstOrCreate([
-            'name'=> $validated['exercise'],
-        ], [
-            'muscle_group' => $validated['muscle'],
-            'exercise_type' => $validated['type'],
-            'equipment' => $moreInfoOnExercise['equipment'] ?? null,
-            'difficulty' => $moreInfoOnExercise['difficulty']?? null,
-            'instructions' => $moreInfoOnExercise['instructions']?? null,
-        ]);
-    
-        $workout = UserWorkout::create([
-            'user_id' => auth()->id(),
-            'exercise_id' => $exercise->id,
-            'sets' => $validated['sets'],
-            'reps' => $validated['reps'],
-            'date' => $validated['date'],
-            'time' => $validated['time']
-        ]);
-    
-        return response()->json($workout->load('exercise'));
+        try {
+            $validated = $request->validate([
+                'date' => 'required|date',
+                'time' => 'required|date_format:H:i',
+                'exercise' => 'required|string',
+                'muscle' => 'required|string',
+                'type' => 'required|string',
+                'sets' => 'required|integer|min:1',
+                'reps' => 'required|integer|min:1'
+            ]);
+
+            $cacheKey = "exercises_{$validated['muscle']}_{$validated['type']}";
+            $moreInfoOnExercise = collect(Cache::get($cacheKey))
+                ->where('name', $validated['exercise'])
+                ->first();
+        
+            $exercise = Exercise::firstOrCreate([
+                'name'=> $validated['exercise'],
+            ], [
+                'muscle_group' => $validated['muscle'],
+                'exercise_type' => $validated['type'],
+                'equipment' => $moreInfoOnExercise['equipment'] ?? null,
+                'difficulty' => $moreInfoOnExercise['difficulty']?? null,
+                'instructions' => $moreInfoOnExercise['instructions']?? null,
+            ]);
+
+            $schedule = WorkoutSchedule::firstOrCreate([
+                'user_id' => auth()->id(),
+                'date' => $validated['date'],
+                'time'=> $validated['time'],
+            ]);
+        
+            $workout = UserWorkout::create([
+                'user_id' => auth()->id(),
+                'exercise_id' => $exercise->id,
+                'schedule_id' => $schedule->id,
+                'sets' => $validated['sets'],
+                'reps' => $validated['reps'],
+            ]);
+        
+            DB::commit();
+            return response()->json($workout->load('exercise', 'workout_schedule'));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()],500);
+        }
     }
     
     public function getUserWorkouts(Request $request)
     {
         $date = $request->validate(['date' => 'required|date'])['date'];
         
-        $workouts = UserWorkout::with('exercise')
-            ->where('user_id', auth()->id())
-            ->whereDate('date', $date)
-            ->get();
+        $workouts = UserWorkout::with(['exercise', 'workout_schedule'])
+            ->whereHas('workout_schedule', function($query) use ($date) {
+                $query->where('user_id', auth()->id())
+                    ->where('date', $date);
+            })->get();
     
         return response()->json($workouts);
     }
 
     public function deleteWorkout($id) 
     {
-        $workout = UserWorkout::where('id', $id)
-            ->where('user_id', auth()->id())
-            ->firstOrFail();
+        DB::beginTransaction();
 
-        $workout->delete();
-        return response()->json(['message' => 'Workout deleted successfully']) ;
+        try {
+            $workout = UserWorkout::with('workout_schedule')
+                ->where('id', $id)
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+
+            $scheduleId = $workout->schedule_id;
+            $workout->delete();
+
+            $remainingWorkouts = UserWorkout::where('schedule_id', $scheduleId)->count();
+            if ($remainingWorkouts === 0) {
+                WorkoutSchedule::where('id', $scheduleId)->delete();
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Workout deleted successfully'], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()],500);
+        }
+
     }
 
     public function deleteAllWorkouts(Request $request) 
     {
         $date = $request->validate(['date' => 'required|date'])['date'];
-        UserWorkout::where('user_id', auth()->id())
+
+        WorkoutSchedule::where('user_id', auth()->id())
             ->whereDate('date', $date)
             ->delete();
 

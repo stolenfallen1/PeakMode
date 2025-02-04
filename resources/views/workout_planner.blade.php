@@ -10,7 +10,7 @@
             exercise: '',
             sets: 1,
             reps: 1,
-            time: localStorage.getItem('lastUsedTimeToExercise') || '',
+            time: '',
         },
         exercises: [],
 
@@ -74,7 +74,6 @@
                 });
     
                 this.selectedDay.workouts.push(response.data);
-                localStorage.setItem('lastUsedTimeToExercise', this.currentWorkout.time);
     
                 this.currentWorkout = {
                     muscle: '',
@@ -95,7 +94,15 @@
                 const response = await axios.get('/workout/user-workouts', {
                     params: { date }
                 });
+
+                if (response.data.length > 0) {
+                    const scheduleTime = response.data[0].workout_schedule.time;
+                    this.currentWorkout.time = scheduleTime.slice(0, -1);
+                } else {
+                    this.currentWorkout.time = '';
+                }
                 return response.data;
+
             } catch (error) {
                 console.error('Error loading workouts:', error);
                 return [];
@@ -319,11 +326,11 @@
                                                     X
                                                 </button>
                                                 <div>
-                                                    <strong>Muscle Group:</strong> <span x-text="workout.muscle"></span>
+                                                    <strong>Muscle Group:</strong> <span x-text="workout.exercise.muscle_group"></span>
                                                     <br>
-                                                    <strong>Workout Type:</strong> <span x-text="workout.type"></span>
+                                                    <strong>Workout Type:</strong> <span x-text="workout.exercise.exercise_type"></span>
                                                     <br>
-                                                    <strong>Exercise:</strong> <span x-text="workout.exercise"></span>
+                                                    <strong>Exercise:</strong> <span x-text="workout.exercise.name"></span>
                                                     <br>
                                                     <strong>Sets:</strong> <span x-text="workout.sets"></span>
                                                     <strong>Reps:</strong> <span x-text="workout.reps"></span>
@@ -466,9 +473,14 @@
                     </button>   
                 </div>
                 <div x-show="selectedDay">
-                    <div class="mb-4">
-                        <h3 class="font-semibold text-lg" x-text="selectedDay?.dayFullName"></h3>
-                        <p class="text-gray-600" x-text="'Date: ' + selectedDay?.date"></p>
+                    <div class="mb-3 flex items-center gap-1">
+                        <p class="text-gray-600" x-text="selectedDay?.dayFullName"></p>
+                        <p class="text-gray-600" x-text="selectedDay?.currentMonth" />
+                        <p class="text-gray-600" x-text="selectedDay?.dayNumber + ','" />
+                        <p class="text-gray-600" x-text="selectedDay?.currentYear" />
+                        <p class="text-gray-600" x-show="selectedDay?.workouts?.length > 0" 
+                            x-text="'@ ' + (new Date('1970-01-01T' + selectedDay.workouts[0].workout_schedule.time.slice(0, -1)).toLocaleTimeString([], { hour: 'numeric', minute:'2-digit', hour12: true }))">
+                        </p>
                     </div>
                     <template x-if="selectedDay?.workouts?.length">
                         <ul>
