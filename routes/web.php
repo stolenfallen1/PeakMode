@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FindGym\FindGymController;
 use App\Http\Controllers\Planner\WorkoutPlannerController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -25,10 +26,6 @@ Route::get('/workout_exercises', function () {
     return view('workout_exercises');
 })->middleware(['auth', 'verified'])->name('workout_exercises');
 
-Route::get('/find_gyms', function () {
-    return view('find_gym');
-})->middleware(['auth', 'verified'])->name('find_gyms');
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -43,6 +40,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/workout/delete/{id}', [WorkoutPlannerController::class, 'deleteWorkout'])->name('workout.delete');
     // Delete all workouts for the current day
     Route::delete('/workout/delete-all', [WorkoutPlannerController::class,'deleteAllWorkouts'])->name('workout.delete.all');
+
+    // Find GYMS
+    // Go to find gyms page
+    Route::get('/find_gyms', [FindGymController::class, 'index'])->name('find_gyms');
+    // Search gyms
+    Route::post('/find_gyms/search', [FindGymController::class, 'searchGym'])->name('find_gyms.search');
 });
 
 require __DIR__.'/auth.php';
