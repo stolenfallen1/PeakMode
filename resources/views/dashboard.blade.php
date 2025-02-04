@@ -71,6 +71,14 @@
                                 </svg>
                                 <span class="text-gray-900 dark:text-white">View Exercises</span>
                             </a>
+                            <a href="{{ route('find_gyms') }}" 
+                                class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                                <svg class="w-6 h-6 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                <span class="text-gray-900 dark:text-white">Find Nearest Gym</span>
+                            </a>
                         </div>
                     </div>
                 </div>
