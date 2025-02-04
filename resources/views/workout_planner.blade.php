@@ -10,7 +10,7 @@
             exercise: '',
             sets: 1,
             reps: 1,
-            time: localStorage.getItem('lastUsedTimeToExercise') || '',
+            time: '',
         },
         exercises: [],
 
@@ -74,7 +74,6 @@
                 });
     
                 this.selectedDay.workouts.push(response.data);
-                localStorage.setItem('lastUsedTimeToExercise', this.currentWorkout.time);
     
                 this.currentWorkout = {
                     muscle: '',
