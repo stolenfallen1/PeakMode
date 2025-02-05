@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e1f69cbc8c1ce73660e3e50b6b6e8bb0",
+    "content-hash": "23f8fe805469232155382868b7c1447d",
     "packages": [
         {
             "name": "brick/math",
@@ -5580,6 +5580,53 @@
                 "source": "https://github.com/tijsverkoyen/CssToInlineStyles/tree/v2.3.0"
             },
             "time": "2024-12-21T16:25:41+00:00"
+        },
+        {
+            "name": "vectorial1024/open-location-code-php",
+            "version": "v1.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Vectorial1024/open-location-code-php.git",
+                "reference": "e8bb549a57b93795e8f973bb72976cef1e061d9c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Vectorial1024/open-location-code-php/zipball/e8bb549a57b93795e8f973bb72976cef1e061d9c",
+                "reference": "e8bb549a57b93795e8f973bb72976cef1e061d9c",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Vectorial1024\\OpenLocationCodePhp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Vectorial1024"
+                }
+            ],
+            "description": "Open Location Code (aka \"Plus Code\") implemented in PHP",
+            "keywords": [
+                "geo",
+                "open-location-code",
+                "plus-code"
+            ],
+            "support": {
+                "issues": "https://github.com/Vectorial1024/open-location-code-php/issues",
+                "source": "https://github.com/Vectorial1024/open-location-code-php/tree/v1.1.2"
+            },
+            "time": "2024-10-28T23:35:35+00:00"
         },
         {
             "name": "vlucas/phpdotenv",

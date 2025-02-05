@@ -25,6 +25,8 @@ class FindGymController extends Controller
     {
         $location = $request->input('location');
 
+        if (!$location) return response()->json(['error' => 'Location is required'], 400);
+
         $results = $this->serperService->searchNearbyGyms($location);
         return response()->json($results);
     }
