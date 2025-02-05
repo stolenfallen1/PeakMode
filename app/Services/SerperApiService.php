@@ -3,6 +3,7 @@
 namespace App\Services;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
+use Vectorial1024\OpenLocationCodePhp\OpenLocationCode;
 
 class SerperApiService
 {
@@ -16,6 +17,16 @@ class SerperApiService
         $this->client = new Client();
     }
 
+    private function convertToPlusCode($lat, $lng) 
+    {
+        try {
+            return OpenLocationCode::encode((float)$lat, (float)$lng, 10);
+        } catch (\Exception $e) {
+            \Log::error('Error converting coordinates to plus code: ' . $e->getMessage());
+            return null;
+        }
+    }
+
     public function searchNearbyGyms($location) 
     {
         $location = trim($location);
@@ -26,13 +37,22 @@ class SerperApiService
             ];
         }
 
-        if (!preg_match('/^[a-zA-Z0-9\s,.-]+$/', $location)) {
+        if (preg_match('/^[-]?\d+\.\d+,[-]?\d+\.\d+$/', $location, $matches)) {
+            [$lat, $lng] = explode(',', $location);
+            $plusLocation = $this->convertToPlusCode($lat, $lng);
+            if ($plusLocation) {
+                $location = $plusLocation;
+            }
+        }
+        
+
+        if (!preg_match('/^[a-zA-Z0-9\s,.\-+]+$/', $location)) {
             return [
                 'error' => 'Location contains invalid characters',
                 'places' => []
             ];
         }
-
+        
         try {
             $headers = [
                 'X-API-KEY' => $this->apiKey,
