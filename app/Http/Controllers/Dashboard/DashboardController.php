@@ -65,6 +65,18 @@ class DashboardController extends Controller
             'weeklyBreakdown',
             'muscleGroupStats'
         ));
-        
+    }
+
+    public function updateWorkoutTarget(Request $request)
+    {
+        $validated = $request->validate([
+            'target' => 'required|integer|min:1|max:7'
+        ]);
+
+        auth()->user()->update([
+            'weekly_workout_target' => $validated['target']
+        ]);
+
+        return redirect()->back();
     }
 }

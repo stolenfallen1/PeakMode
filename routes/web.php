@@ -32,6 +32,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Dashboard
+    // Change User weekly workout target
+    Route::post('/dashboard/update-workout-target', [DashboardController::class, 'updateWorkoutTarget'])->name('dashboard.update.workout.target');
+
     // Workout planner
     // Save workout
     Route::post('/workout/save', [WorkoutPlannerController::class, 'saveWorkout'])->name('workout.save');
