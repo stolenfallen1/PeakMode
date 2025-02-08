@@ -18,6 +18,14 @@ class DashboardController extends Controller
 
         $totalWorkouts = UserWorkout::where('user_id', $user->id)->count();
 
+        $lastWeekWorkouts = UserWorkout::where('user_id', $user->id)
+            ->whereHas('workout_schedule', function ($query) use ($now) {
+                $query->whereBetween('date', [
+                    $now->copy()->subWeek()->startOfWeek()->format('Y-m-d'),
+                    $now->copy()->subWeek()->endOfWeek()->format('Y-m-d')
+                ]);
+            })->count();
+
         $weeklyWorkouts = UserWorkout::where('user_id', $user->id)
             ->whereHas('workout_schedule', function ($query) use ($now) {
                 $query->whereBetween('date', [
@@ -59,6 +67,7 @@ class DashboardController extends Controller
 
         return view('dashboard', compact(
             'totalWorkouts',
+            'lastWeekWorkouts',
             'weeklyWorkouts',
             'mostTrainedMuscle',
             'recentWorkouts',

@@ -7,8 +7,17 @@
             <!-- Stats Overview -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg p-6">
-                    <div class="text-gray-500 dark:text-gray-400 text-sm">Total Workouts</div>
-                    <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalWorkouts }}</div>
+                    <div class="text-gray-500 dark:text-gray-400 text-sm">Last Week's Workouts</div>
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ $lastWeekWorkouts }}</div>
+                    <div class="text-blue-600 text-xs mt-1">
+                        @if($weeklyWorkouts > $lastWeekWorkouts)
+                            <span class="text-green-600">↑ {{ $weeklyWorkouts - $lastWeekWorkouts }} more this week</span>
+                        @elseif($weeklyWorkouts < $lastWeekWorkouts)
+                            <span class="text-red-600">↓ {{ $lastWeekWorkouts - $weeklyWorkouts }} less this week</span>
+                        @else
+                            <span>Same as this week</span>
+                        @endif
+                    </div>
                 </div>
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg p-6">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">This Week's Workouts</div>
