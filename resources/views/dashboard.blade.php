@@ -1,11 +1,23 @@
 <x-app-layout>
-    <div class="py-6">
+    <div class="py-6" x-data="{
+        showTargetForm: false,
+        newTarget: '{{ auth()->user()->weekly_workout_target }}'
+    }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Stats Overview -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg p-6">
-                    <div class="text-gray-500 dark:text-gray-400 text-sm">Total Workouts</div>
-                    <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalWorkouts }}</div>
+                    <div class="text-gray-500 dark:text-gray-400 text-sm">Last Week's Workouts</div>
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ $lastWeekWorkouts }}</div>
+                    <div class="text-blue-600 text-xs mt-1">
+                        @if($weeklyWorkouts > $lastWeekWorkouts)
+                            <span class="text-green-600">↑ {{ $weeklyWorkouts - $lastWeekWorkouts }} more this week</span>
+                        @elseif($weeklyWorkouts < $lastWeekWorkouts)
+                            <span class="text-red-600">↓ {{ $lastWeekWorkouts - $weeklyWorkouts }} less this week</span>
+                        @else
+                            <span>Same as this week</span>
+                        @endif
+                    </div>
                 </div>
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg p-6">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">This Week's Workouts</div>
@@ -23,18 +35,48 @@
                         {{ $mostTrainedMuscle ? $mostTrainedMuscle->count . ' workouts' : 'No workouts yet' }}
                     </div>
                 </div>
+                <!-- Weekly Progress Card -->
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg p-6">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Weekly Progress</div>
                     <div class="text-2xl font-bold text-gray-900 dark:text-white">
-                        {{ min(round(($weeklyBreakdown->count() / 4) * 100), 100) }}%
+                        {{ min(round(($weeklyBreakdown->count() / auth()->user()->weekly_workout_target) * 100), 100) }}%
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
                         <div class="bg-blue-600 h-2.5 rounded-full" 
-                             style="width: {{ min(($weeklyBreakdown->count() / 4) * 100, 100) }}%">
+                             style="width: {{ min(($weeklyBreakdown->count() / auth()->user()->weekly_workout_target) * 100, 100) }}%">
                         </div>
                     </div>
-                    <div class="text-blue-600 text-xs mt-1">
-                        Target: 4 active days/week
+                    <div class="flex items-center justify-between mt-1">
+                        <div class="text-blue-600 text-xs" x-show="!showTargetForm">
+                            Target: {{ auth()->user()->weekly_workout_target }} active days/week
+                        </div>
+                        <button x-show="!showTargetForm" 
+                            @click="showTargetForm = true" 
+                            class="text-xs text-blue-600 hover:text-blue-800">
+                            Change Target
+                        </button>
+                        
+                        <form x-show="showTargetForm" 
+                            class="flex items-center gap-2 w-full" 
+                            action="{{ route('dashboard.update.workout.target') }}" 
+                            method="POST">
+                            @csrf
+                            <input type="number" 
+                                name="target" 
+                                x-model="newTarget"
+                                min="1" 
+                                max="7" 
+                                class="w-16 text-sm rounded border-gray-300 dark:bg-gray-700 dark:border-gray-600">
+                            <button type="submit" 
+                                class="text-sm text-green-600 hover:text-green-800">
+                                Save
+                            </button>
+                            <button type="button" 
+                                @click="showTargetForm = false" 
+                                class="text-sm text-red-600 hover:text-red-800">
+                                Cancel
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
